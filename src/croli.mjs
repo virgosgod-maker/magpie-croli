@@ -25,6 +25,10 @@ export const CREDITS_BALANCE = "https://ds.croli.net/credits/v1/account/balance"
  * under group default`。把「当前完全不可服务」的模型放进核心判据，
  * 等于把登录的成败挂在一个随时会被上游删掉的名字上 —— 正是这条判据要消灭的脆性。
  * 它仍留在 `MODEL_SPECS` 里参与排序，活目录会按 `/v1/models` 自动把它过滤掉。
+ *
+ * 判据是「至少命中一个」，不是「全部命中」：2026-11-25 实测免费池里已经没有
+ * `gpt-6-luna`（只剩 `gpt-5.6-luna`），要求全中会让正常账号被判成没有网关 Key。
+ * 上游改名换型号是常态，这里只用来确认资源确实在服务模型。
  */
 export const CORE_MODEL_IDS = Object.freeze([
   "DeepSeek-V4.1-Flash",
@@ -124,7 +128,7 @@ export async function exchangeRelayKey(jwt, { fetchImpl = fetch } = {}) {
     const matches = MODEL_SPECS.filter((spec) => models.includes(spec.id)).length
     const coreMatches = CORE_MODEL_IDS.filter((id) => models.includes(id)).length
     return { resource, key, endpoint, matches, coreMatches }
-  }).filter((item) => item.key && item.endpoint === BASE && item.coreMatches === CORE_MODEL_IDS.length)
+  }).filter((item) => item.key && item.endpoint === BASE && item.coreMatches >= 1)
     .sort((a, b) => b.matches - a.matches)
   if (!candidates.length) throw fail("免费资源中没有可用的 Croli 网关 Key（缺核心模型）", 404, CODES.modelNotFound)
   const selected = candidates[0]

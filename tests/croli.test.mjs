@@ -151,6 +151,16 @@ test("relay 选择覆盖核心模型的网关 Key", async () => {
   }), /没有可用的 Croli 网关 Key/)
 })
 
+test("relay 核心判据是「至少命中一个」：上游删掉 gpt-6-luna 后仍能导入", async () => {
+  const result = await exchangeRelayKey(fakeJwt({ sub: "user_test" }), {
+    fetchImpl: async () => json({ resources: [
+      { url: BASE, sk: "csk_no_core", models: ["grok-4.6", "gemini-4-argon"] },
+      { url: BASE, sk: "csk_one_core", models: ["DeepSeek-V4.1-Flash", "gpt-6.1-sol", "claude-opus-5.5"] },
+    ] }),
+  })
+  assert.equal(result.key, "csk_one_core")
+})
+
 test("一次性导入只依赖临时 auth 文件，返回独立 Key 与账号 metadata", async () => {
   const dir = await mkdtemp(join(tmpdir(), "magpie-croli-test-"))
   try {

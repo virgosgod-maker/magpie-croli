@@ -1,6 +1,6 @@
 {
   "name": "magpie-croli",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Expose the verified Croli gateway models through magpie with native API-key passthrough and no official-client prompt injection.",
   "type": "module",
   "main": "./index.mjs",
